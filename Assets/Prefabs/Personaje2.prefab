@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 4247876002197325332}
   - component: {fileID: 8274426494325068413}
   - component: {fileID: 3126713395637842522}
+  - component: {fileID: 7632135162862016105}
+  - component: {fileID: 236272500191381708}
   m_Layer: 0
   m_Name: Personaje2
   m_TagString: Untagged
@@ -34,6 +36,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2709073273064409346}
+  - {fileID: 4752266626563050332}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8672063665748066401
@@ -126,6 +129,68 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d37da7d67445d424bbc93d431e2fcac5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FightherController
+  maxHealth: 200
+  currentHealth: 0
+  isBlocking: 0
+  isStunned: 0
+  isDefeated: 0
+  moveSpeed: 2.2
+  jumpForce: 3.8
+  groundCheckDistance: 0.25
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  isGrounded: 1
+  enemyTag: Enemy
+  punchHitboxCube: {fileID: 0}
+  punchDamage: 8
+  punchVisualDuration: 0.2
+  stunDuration: 0.5
+  knockbackForce: 3
+  currentComboCount: 0
+  comboResetTime: 1.5
+  comboCooldown: 2
+  isOnComboCooldown: 0
+  ultimateChargeRequired: 50
+  rb: {fileID: 0}
+  blockShield: {fileID: 0}
+  stageReference: {fileID: 0}
+--- !u!114 &7632135162862016105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3138221478086521804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b5bc60e49838c747a778936ac22c098, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeavyStrikeAbility
+  cooldownSeconds: 5
+  strikeHitbox: {fileID: 7953641441843909924}
+  damage: 20
+  hitboxActiveDuration: 0.2
+--- !u!114 &236272500191381708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3138221478086521804}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53ad3bd27a53fa84cb4671267cf296f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FighterUltimate
+  ultimateVideo: {fileID: 32900000, guid: 7d05ace739b65cc49bdcbe659ad1d686, type: 3}
+  videoPlayer: {fileID: 0}
+  targetCamera: {fileID: 0}
+  ultimateAudioSource: {fileID: 0}
+  ultimateSound: {fileID: 0}
+  ultimateHitbox: {fileID: 0}
+  damage: 50
+  cooldownDuration: 10
 --- !u!1 &4191065790834738531
 GameObject:
   m_ObjectHideFlags: 0
@@ -251,3 +316,128 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b748cf3a50118044f8c3cd1cefb252eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitboxVisual
+--- !u!1 &6192019110892576949
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4752266626563050332}
+  - component: {fileID: 6679065196464830019}
+  - component: {fileID: 7554331757381349400}
+  - component: {fileID: 2932885398993051392}
+  - component: {fileID: 7953641441843909924}
+  m_Layer: 0
+  m_Name: Golpe_fuerte
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &4752266626563050332
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192019110892576949}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.426, y: 0.029, z: 0}
+  m_LocalScale: {x: 2.0477886, y: 1.1295055, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8857270438561582137}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &6679065196464830019
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192019110892576949}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &7554331757381349400
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192019110892576949}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 2cbe6a333749b524db6d93f940cb2c94, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &2932885398993051392
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192019110892576949}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7953641441843909924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6192019110892576949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 12f01f4d7b89792408eaba9798fd67bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityHitbox

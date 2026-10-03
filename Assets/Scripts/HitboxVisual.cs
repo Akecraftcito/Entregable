@@ -6,6 +6,12 @@ public class HitboxVisual : MonoBehaviour
     private bool isFinalHit;
     private Vector3 attackerPosition;
     private string targetTag;
+    private FighterController ownerFighter;
+
+    private void Awake()
+    {
+        ownerFighter = GetComponentInParent<FighterController>();
+    }
 
     /// <summary>
     /// Configura los parámetros de impacto antes de encender la hitbox visual.
@@ -16,17 +22,31 @@ public class HitboxVisual : MonoBehaviour
         isFinalHit = finalHit;
         attackerPosition = attackerPos;
         targetTag = enemyTag;
+
+        if (ownerFighter == null)
+        {
+            ownerFighter = GetComponentInParent<FighterController>();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Evitar golpear a objetos con el mismo Tag (compañeros/uno mismo)
-        if (other.CompareTag(targetTag))
+        // Ignorar colisiones consigo mismo o sus componentes hijos
+        if (ownerFighter != null && other.transform.IsChildOf(ownerFighter.transform))
         {
-            FighterController target = other.GetComponent<FighterController>();
-            if (target != null)
+            return;
+        }
+
+        bool tagMatches = !string.IsNullOrEmpty(targetTag) && other.CompareTag(targetTag);
+        FighterController target = other.GetComponentInParent<FighterController>();
+
+        if (target != null && target != ownerFighter)
+        {
+            // Golpear si coincide el tag o si no tiene tag asignado
+            if (tagMatches || string.IsNullOrEmpty(targetTag))
             {
-                target.TakeHit(damage, isFinalHit, attackerPosition);
+                float appliedDamage = target.TakeHit(damage, isFinalHit, attackerPosition);
+                if (ownerFighter != null) ownerFighter.AddDamageDealt(appliedDamage);
             }
         }
     }

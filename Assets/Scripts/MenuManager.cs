@@ -2,26 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-
-public enum GameDifficulty { Easy, Medium, Hard }
 
 public class MenuManager : MonoBehaviour
 {
     [Header("AR References")]
     [SerializeField] private ARRaycastManager raycastManager;
-    [SerializeField] private GameObject worldSpaceMenuPrefab; // Prefab del Canvas World Space
+    [SerializeField] private GameObject worldSpaceMenuPrefab;
 
-    [Header("UI Panels (Asignar en el Prefab)")]
+    [Header("UI Panels")]
     public GameObject mainPanel;
     public GameObject optionsPanel;
     public GameObject characterSelectionPanel;
     public GameObject difficultyPanel;
 
     [Header("Character Selection UI")]
-    public Text selectionInstructionText; // Texto de guía
-    public Button[] characterButtons;     // Botones de personajes
+    public TMP_Text selectionInstructionText;
+    public Button[] characterButtons;
 
     [Header("Main Menu Buttons")]
     public Button playButton;
@@ -43,62 +42,98 @@ public class MenuManager : MonoBehaviour
 
     private void Awake()
     {
-        // Asegurarnos de que al instanciar este objeto, solo el panel principal esté activo
+        AutoFindReferences();
         ResetPanelsState();
+    }
+
+    private void Start()
+    {
+        SetupAllButtons();
+    }
+
+    private void AutoFindReferences()
+    {
+        if (mainPanel == null) mainPanel = transform.Find("MainPanel")?.gameObject;
+        if (optionsPanel == null) optionsPanel = transform.Find("OptionsPanel")?.gameObject;
+        if (characterSelectionPanel == null) characterSelectionPanel = transform.Find("CharacterPanel")?.gameObject;
+        if (difficultyPanel == null) difficultyPanel = transform.Find("DifficultyPanel")?.gameObject;
+
+        if (selectionInstructionText == null && characterSelectionPanel != null)
+        {
+            selectionInstructionText = characterSelectionPanel.GetComponentInChildren<TMP_Text>(true);
+        }
+
+        if (selectionInstructionText != null)
+        {
+            selectionInstructionText.gameObject.SetActive(true);
+        }
+
+        if (mainPanel != null)
+        {
+            if (playButton == null) playButton = mainPanel.transform.Find("Jugar")?.GetComponent<Button>();
+            if (optionsButton == null) optionsButton = mainPanel.transform.Find("Opciones")?.GetComponent<Button>();
+        }
+
+        if (characterSelectionPanel != null && (characterButtons == null || characterButtons.Length == 0))
+        {
+            characterButtons = new Button[3];
+            characterButtons[0] = characterSelectionPanel.transform.Find("Personaje1")?.GetComponent<Button>();
+            characterButtons[1] = characterSelectionPanel.transform.Find("Personaje2")?.GetComponent<Button>();
+            characterButtons[2] = characterSelectionPanel.transform.Find("Personaje3")?.GetComponent<Button>();
+        }
+
+        if (difficultyPanel != null)
+        {
+            if (easyButton == null) easyButton = difficultyPanel.transform.Find("Facil")?.GetComponent<Button>();
+            if (mediumButton == null) mediumButton = difficultyPanel.transform.Find("Normal")?.GetComponent<Button>();
+            if (hardButton == null) hardButton = difficultyPanel.transform.Find("Dificil")?.GetComponent<Button>();
+        }
     }
 
     void Update()
     {
-        // Si el menú aún no se ha colocado en la pared, escuchamos el toque
-        if (spawnedMenuInstance == null)
+        if (spawnedMenuInstance != null || raycastManager == null) return;
+
+        Vector2 touchPos = Vector2.zero;
+        bool hasInput = false;
+
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
-            Vector2 touchPos = Vector2.zero;
-            bool hasInput = false;
+            touchPos = Input.GetTouch(0).position;
+            hasInput = true;
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            touchPos = Input.mousePosition;
+            hasInput = true;
+        }
 
-            // Detección táctil en Móvil
-            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+        if (hasInput)
+        {
+            if (raycastManager.Raycast(touchPos, hits, TrackableType.Planes))
             {
-                touchPos = Input.GetTouch(0).position;
-                hasInput = true;
-            }
-            // Detección en Editor PC
-            else if (Input.GetMouseButtonDown(0))
-            {
-                touchPos = Input.mousePosition;
-                hasInput = true;
-            }
-
-            if (hasInput && raycastManager != null)
-            {
-                if (raycastManager.Raycast(touchPos, hits, TrackableType.Planes))
-                {
-                    Pose hitPose = hits[0].pose;
-
-                    // 1. Instanciar el Canvas usando la posición y la rotación EXACTA de la pared
-                    spawnedMenuInstance = Instantiate(worldSpaceMenuPrefab, hitPose.position, hitPose.rotation);
-
-                    // 2. Ajuste de alineación para que quede pegado plano contra la pared y mirando al frente
-                    // Rotamos 180 grados en Y por si la cara del Canvas quedó mirando hacia la pared interna
-                    spawnedMenuInstance.transform.Rotate(0f, 180f, 0f, Space.Self);
-
-                    // 3. Inicializar los paneles y eventos de botones en la nueva instancia
-                    MenuManager instanceMenu = spawnedMenuInstance.GetComponent<MenuManager>();
-                    if (instanceMenu != null)
-                    {
-                        instanceMenu.ResetPanelsState();
-                        instanceMenu.SetupAllButtons();
-                        instanceMenu.ShowMainMenu();
-                    }
-
-                    Debug.Log("¡Canvas pegado correctamente a la pared!");
-                }
+                Pose hitPose = hits[0].pose;
+                SpawnMenuAtPose(hitPose);
             }
         }
     }
 
-    /// <summary>
-    /// Desactiva todos los paneles excepto el panel principal.
-    /// </summary>
+    private void SpawnMenuAtPose(Pose hitPose)
+    {
+        if (worldSpaceMenuPrefab == null) return;
+
+        spawnedMenuInstance = Instantiate(worldSpaceMenuPrefab, hitPose.position, hitPose.rotation);
+        spawnedMenuInstance.transform.Rotate(0f, 180f, 0f, Space.Self);
+
+        MenuManager instanceMenu = spawnedMenuInstance.GetComponent<MenuManager>();
+        if (instanceMenu != null)
+        {
+            instanceMenu.ResetPanelsState();
+            instanceMenu.SetupAllButtons();
+            instanceMenu.ShowMainMenu();
+        }
+    }
+
     public void ResetPanelsState()
     {
         if (mainPanel) mainPanel.SetActive(true);
@@ -107,9 +142,6 @@ public class MenuManager : MonoBehaviour
         if (difficultyPanel) difficultyPanel.SetActive(false);
     }
 
-    /// <summary>
-    /// Asigna dinámicamente los eventos OnClick de los botones.
-    /// </summary>
     public void SetupAllButtons()
     {
         if (playButton != null)
@@ -156,31 +188,31 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    // ================================================
-    // NAVEGACIÓN ENTRE PANELES
-    // ================================================
-
     public void ShowMainMenu()
     {
+        isSelectingPlayer = true;
+        SelectedPlayerCharacterIndex = -1;
+        SelectedEnemyCharacterIndex = -1;
         SetPanelActive(mainPanel);
     }
 
     public void OnClickPlay()
     {
-        Debug.Log("Pulsado botón JUGAR");
         isSelectingPlayer = true;
         SelectedPlayerCharacterIndex = -1;
         SelectedEnemyCharacterIndex = -1;
 
         if (selectionInstructionText != null)
-            selectionInstructionText.text = "SELECCIONA TU PERSONAJE";
+        {
+            selectionInstructionText.gameObject.SetActive(true);
+            selectionInstructionText.text = "Escoge tu personaje";
+        }
 
         SetPanelActive(characterSelectionPanel);
     }
 
     public void OnClickOptions()
     {
-        Debug.Log("Pulsado botón OPCIONES");
         SetPanelActive(optionsPanel);
     }
 
@@ -189,34 +221,25 @@ public class MenuManager : MonoBehaviour
         ShowMainMenu();
     }
 
-    // ================================================
-    // SELECCIÓN DE PERSONAJES
-    // ================================================
-
     public void OnSelectCharacter(int characterIndex)
     {
         if (isSelectingPlayer)
         {
             SelectedPlayerCharacterIndex = characterIndex;
-            Debug.Log($"Personaje Jugador Seleccionado: {characterIndex}");
-
             isSelectingPlayer = false;
 
             if (selectionInstructionText != null)
-                selectionInstructionText.text = "SELECCIONA A TU RIVAL";
+            {
+                selectionInstructionText.gameObject.SetActive(true);
+                selectionInstructionText.text = "Escoge tu rival";
+            }
         }
         else
         {
             SelectedEnemyCharacterIndex = characterIndex;
-            Debug.Log($"Personaje Rival Seleccionado: {characterIndex}");
-
             ShowDifficultyPanel();
         }
     }
-
-    // ================================================
-    // SELECCIÓN DE DIFICULTAD E INICIO DE PELEA
-    // ================================================
 
     public void ShowDifficultyPanel()
     {
@@ -226,18 +249,28 @@ public class MenuManager : MonoBehaviour
     public void OnSelectDifficulty(int difficultyIndex)
     {
         SelectedDifficulty = (GameDifficulty)difficultyIndex;
-        Debug.Log($"Dificultad Seleccionada: {SelectedDifficulty}");
 
-        StartGameCombat();
-    }
+        Vector3 wallPos = transform.position;
+        Quaternion wallRot = transform.rotation;
 
-    private void StartGameCombat()
-    {
-        Debug.Log("¡Pelea Iniciada! Destruyendo menú e iniciando combate.");
+        if (ARWallSpawner.HasWallPose)
+        {
+            wallPos = ARWallSpawner.LastWallPose.position;
+            wallRot = ARWallSpawner.LastWallPose.rotation;
+        }
+
+        CombatManager manager = CombatManager.Instance;
+        if (manager == null)
+        {
+            GameObject mgrObj = new GameObject("CombatManager");
+            manager = mgrObj.AddComponent<CombatManager>();
+        }
+
+        manager.StartCombat(SelectedPlayerCharacterIndex, SelectedEnemyCharacterIndex, (int)SelectedDifficulty, wallPos, wallRot);
 
         if (spawnedMenuInstance != null)
         {
-            Destroy(spawnedMenuInstance);
+            spawnedMenuInstance.SetActive(false);
         }
         else
         {

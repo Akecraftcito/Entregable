@@ -6,7 +6,7 @@ public class SimpleSoundOptions : MonoBehaviour
 {
     [Header("Audio Mixer")]
     [SerializeField] private AudioMixer mainMixer;
-    [SerializeField] private string masterParamName = "MasterVolume";
+    [SerializeField] private string masterParamName = "MyExposedParam";
 
     [Header("UI Controls")]
     [SerializeField] private Slider masterVolumeSlider;
@@ -38,10 +38,10 @@ public class SimpleSoundOptions : MonoBehaviour
 
     private void SetMasterVolume(float linearValue)
     {
-        if (mainMixer == null) return;
+        float clampedValue = Mathf.Clamp(linearValue, 0.0001f, 1f);
+        float dB = Mathf.Log10(clampedValue) * 20f;
+        bool appliedToMixer = mainMixer != null && mainMixer.SetFloat(masterParamName, dB);
 
-        // Convierte el valor del Slider (0.0001 a 1.0) a Decibeles (-80 dB a 0 dB)
-        float dB = Mathf.Log10(Mathf.Clamp(linearValue, 0.0001f, 1f)) * 20f;
-        mainMixer.SetFloat(masterParamName, dB);
+        AudioListener.volume = appliedToMixer ? 1f : clampedValue;
     }
 }
