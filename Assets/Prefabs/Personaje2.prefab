@@ -190,7 +190,7 @@ MonoBehaviour:
   ultimateSound: {fileID: 0}
   ultimateHitbox: {fileID: 0}
   damage: 50
-  cooldownDuration: 10
+  cooldownDuration: 20
 --- !u!1 &4191065790834738531
 GameObject:
   m_ObjectHideFlags: 0
